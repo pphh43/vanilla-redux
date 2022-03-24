@@ -1,58 +1,32 @@
 import { createStore } from "redux";
 
-const add = document.getElementById("add");
-const minus = document.getElementById("minus");
-const number = document.querySelector("span");
+const form = document.querySelector("form");
+const input = document.querySelector("input");
+const ul = document.querySelector("ul");
 
-number.innerText = 0;
+const ADD_TODO = "ADD_TODO";
+const DELITE_TODO = "DELITE_TODO";
 
-const ADD = "ADD";
-const MINUS = "MINUS";
-
-const countModifier = (count = 0, action) => {
+const reducer = (state = [], action) => {
   switch (action.type) {
-    case ADD:
-      return count + 1;
-    case MINUS:
-      return count - 1;
+    case ADD_TODO :
+      return [...state, { text: action.text, id: Date.now() }];
+    case DELITE_TODO :
+      return [];
     default:
-      return count;
+      return state;
   }
 };
-const countStore = createStore(countModifier);
 
-const handleAdd = () => {
-  countStore.dispatch({ type: ADD });
-};
-const handleMinus = () => {
-  countStore.dispatch({ type: MINUS });
-};
-const onChange = () => {
-  //console.log(countStore.getState());
-  number.innerText = countStore.getState();
-};
-countStore.subscribe(onChange);
+const store = createStore(reducer);
 
-add.addEventListener("click", handleAdd);
-minus.addEventListener("click", handleMinus);
+store.subscribe(() => console.log(store.getState()));
 
-{
-  /* 
-< Recap >
-✅ reducer : 현재 상태의 application과 함께 불려지는 function (+ with action) //-> conutModifier
-return하는 것은 application의 state가 됨
-✅ action : reducer와 소통하는 방법으로 Object여야 하며 그 key 이름은 항상 type임 (바꿀 수 없음)
-✅ dispatch : reducer에게 action을 보내는 방법
-✅ subscribe : store의 변화를 감지하면 인자값으로 준 함수를 실행
-✅ switch가 자주 쓰임
-    switch(action.type){
-    case ..blah..:
-    return smth
-    case ..blah2..:
-    return smth2
-    default:
-    return smth3
-}
-✅ string으로 바로 쓰는 대신에 const variable로 선언해서 사용하기 -> 에러 발견 용이 
-*/
-}
+const onSubmit = e => {
+  e.preventDefault();
+  const toDo = input.value;
+  input.value = "";
+  store.dispatch({ type: ADD_TODO, text: toDo });
+};
+
+form.addEventListener("submit", onSubmit);
